@@ -4,8 +4,8 @@
 
 import SwiftUI
 
-public final class ACNetwork {
-    public static let shared = ACNetwork()
+public final class MRNetwork {
+    public static let shared = MRNetwork()
     
     public func getJSON<JSON:Codable>(request:URLRequest, type:JSON.Type, decoder:JSONDecoder = JSONDecoder()) async throws -> JSON {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
