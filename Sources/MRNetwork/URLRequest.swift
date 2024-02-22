@@ -54,38 +54,6 @@ public extension URLRequest {
         return request
     }
     
-    static func postVImage<JSON: Encodable>(url: URL, data: JSON, image: Data, method: HTTPMethods = .post,
-                                       token: String? = nil, authMethod: AuthorizationMethod = .token,
-                                            encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
-        var request = URLRequest(url: url)
-        if let token {
-            request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
-        }
-        request.httpMethod = method.rawValue
-        request.timeoutInterval = 30
-        let boundary = UUID().uuidString
-        let clrf = "\r\n"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.setValue("multipart/form-data", forHTTPHeaderField: "Accept")
-        
-        var body = Data()
-        body.append("--\(boundary)")
-        body.append(clrf)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"")
-        body.append(clrf)
-        body.append("Content-Type: image/jpeg")
-        body.append(clrf)
-        body.append(clrf)
-        body.append(image)
-        body.append(clrf)
-        body.append("--\(boundary)--")
-        body.append(clrf)
-
-        request.httpBody = try? encoder.encode(body)
-        return request
-    }
-
-    
     static func delete<JSON: Encodable>(
         url: URL,
         data: JSON? = nil, // Allow optional data, but DELETE usually doesn't contain a body
