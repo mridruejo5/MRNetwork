@@ -52,7 +52,7 @@ public final class MRNetwork {
             throw NetworkError.vapor(try JSONDecoder().decode(VaporError.self, from: data).reason, response.statusCode)
         }
     }
-    
+
     public func deleteV(request:URLRequest, statusOK:Int = 200) async throws {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
         guard let response = response as? HTTPURLResponse else { throw NetworkError.noHTTP }
