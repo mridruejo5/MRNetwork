@@ -54,7 +54,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postVImage<JSON: Encodable>(url: URL, data: JSON, imageData: Data, method: HTTPMethods = .post,
+    static func postVImage<JSON: Encodable>(url: URL, data: JSON, image: Data, method: HTTPMethods = .post,
                                        token: String? = nil, authMethod: AuthorizationMethod = .token,
                                             encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -76,7 +76,7 @@ public extension URLRequest {
         body.append("Content-Type: image/jpeg")
         body.append(clrf)
         body.append(clrf)
-        body.append(imageData)
+        body.append(image)
         body.append(clrf)
         body.append("--\(boundary)--")
         body.append(clrf)
