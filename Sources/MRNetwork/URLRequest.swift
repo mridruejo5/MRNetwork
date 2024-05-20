@@ -89,8 +89,7 @@ public extension URLRequest {
         var body = Data()
         
         body.append("--\(boundary + clrf)")
-        body.append("Content-Disposition: form-data; name=\"profileData\"\(profileData)\(clrf)")
-        body.append("Content-Type: application/json; charset=utf8\(clrf + clrf)")
+        body.append("Content-Disposition: form-data; name=\(profileData)\(clrf)\(clrf)")
         if let jsonData = try? encoder.encode(profileData),
            let profileDataString = String(data: jsonData, encoding: .utf8) {
             body.append(profileDataString)
