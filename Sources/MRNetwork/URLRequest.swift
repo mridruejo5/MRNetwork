@@ -72,6 +72,28 @@ public extension URLRequest {
         // For DELETE requests, omit setting the httpBody as it's usually empty
         return request
     }
+    
+    static func postImage(url: URL, data: Data, method: HTTPMethods = .post,
+                                   token: String? = nil, authMethod: AuthorizationMethod = .token) -> URLRequest {
+        var request = URLRequest(url: url)
+        if let token {
+            request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
+        }
+        request.httpMethod = method.rawValue
+        request.timeoutInterval = 30
+        let boundary = UUID().uuidString
+        let clrf = "\r\n"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
+        var body = Data()
+        body.append("--\(boundary)\(clrf)")
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\(clrf)")
+        body.append("Content-Type: image/jpeg\(clrf)\(clrf)")
+        body.append(data)
+        body.append("\(clrf)--\(boundary)--\(clrf)")
+        
+        request.httpBody = body
+        return request
+    }
 }
 

@@ -62,7 +62,23 @@ public final class MRNetwork {
     }
     
     #if os(iOS)
-    public func getImage(url:URL) async throws -> UIImage {
+    public func getImage(request:URLRequest) async throws -> UIImage {
+        let (data, response) = try await URLSession.shared.dataRequest(for: request)
+        guard let response = response as? HTTPURLResponse else { throw NetworkError.noHTTP }
+        if response.statusCode == 200 {
+            if let image = UIImage(data: data) {
+                return image
+            } else {
+                throw NetworkError.dataNotValid
+            }
+        } else {
+            throw NetworkError.status(response.statusCode)
+        }
+    }
+    #endif
+    
+    #if os(iOS)
+    public func getImage2(url:URL) async throws -> UIImage {
         let (data, response) = try await URLSession.shared.dataRequest(from: url)
         guard let response = response as? HTTPURLResponse else { throw NetworkError.noHTTP }
         if response.statusCode == 200 {
