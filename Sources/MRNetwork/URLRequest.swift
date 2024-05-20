@@ -100,7 +100,9 @@ public extension URLRequest {
             body.append("--\(boundary + clrf)")
             body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"\(uuid).jpg\"\(clrf)")
             body.append("Content-Type: image/jpeg\(clrf + clrf)")
-            body.append(imageData)
+            if let image = try? encoder.encode(imageData) {
+                body.append(image)
+            }
             body.append(clrf)
         }
         body.append("--\(boundary)--\(clrf)")
