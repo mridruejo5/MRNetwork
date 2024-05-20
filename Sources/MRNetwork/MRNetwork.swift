@@ -76,4 +76,21 @@ public final class MRNetwork {
         }
     }
     #endif
+    
+    #if os(iOS)
+    public func postImage(request:URLRequest, statusOK:Int = 200) async throws {
+        let (data, response) = try await URLSession.shared.dataRequest(for: request)
+        guard let response = response as? HTTPURLResponse else { throw NetworkError.noHTTP }
+        if httpResponse.statusCode != statusOK {
+            let errorReason: String
+            do {
+                let vaporError = try JSONDecoder().decode(VaporError.self, from: data)
+                errorReason = vaporError.reason
+            } catch {
+                errorReason = "Unknown error"
+            }
+            throw NetworkError.vapor(errorReason, httpResponse.statusCode)
+        }
+    }
+    #endif
 }

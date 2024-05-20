@@ -72,6 +72,50 @@ public extension URLRequest {
         // For DELETE requests, omit setting the httpBody as it's usually empty
         return request
     }
-
+    
+    static func postImage<JSON:Codable>(url: URL, profileData: JSON, imageData: Data, method: HTTPMethods = .post,
+                                   token: String? = nil, authMethod: AuthorizationMethod = .token,
+                                        encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
+        var request = URLRequest(url: url)
+        if let token {
+            request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
+        }
+        request.httpMethod = method.rawValue
+        request.timeoutInterval = 30
+        let boundary = UUID().uuidString
+        let clrf = "\r\n"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        body.append("--\(boundary + clrf)")
+        body.append("Content-Disposition: form-data; profile=\"profileData\"\(profileData)\(clrf)")
+        body.append("Content-Type: application/json; charset=utf8\(clrf + clrf)")
+        if let jsonData = try? encoder.encode(profileData) {
+            body.append(jsonData)
+        }
+        body.append(clrf)
+        
+        if let uuid = UUID().uuidString.components(separatedBy: "-").first {
+            body.append("--\(boundary + clrf)")
+            body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"\(uuid).jpg\"\(clrf)")
+            body.append("Content-Type: image/jpeg\(clrf + clrf)")
+            body.append(imageData)
+            body.append(clrf)
+        }
+        body.append("--\(boundary)--\(clrf)")
+        
+        request.httpBody = body
+        
+        return request
+    }
 }
 
+/*
+var body = Data()
+body.append("--\(boundary)\(clrf)")
+body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\(clrf)")
+body.append("Content-Type: image/jpeg\(clrf)\(clrf)")
+body.append(data)
+body.append("\(clrf)--\(boundary)--\(clrf)")
+*/
