@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart<JSON: Codable>(url: URL, profileData: JSON, imageData: Data?, method: HTTPMethods = .post,
+    static func postMultiPart(url: URL, imageData: Data, method: HTTPMethods = .post,
                                              token: String? = nil, authMethod: AuthorizationMethod = .token,
                                              encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -88,24 +88,12 @@ public extension URLRequest {
         
         var body = Data()
         
-        // Add profile data
-        guard let jsonData = try? encoder.encode(profileData), let userDataJSONString = String(data: jsonData, encoding: .utf8) else {
-            throw NetworkError.unknown
-        }
-        body.append("--\(boundary + clrf)")
-        body.append("Content-Disposition: form-data; name=\"profileData\"\(clrf)")
-        body.append("Content-Type: application/json\(clrf + clrf)")
-        body.append(userDataJSONString)
-        body.append(clrf)
-        
         // Add image data if available
-        if let imageData = imageData {
-            body.append("--\(boundary + clrf)")
-            body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"profile.jpg\"\(clrf)")
-            body.append("Content-Type: image/jpeg\(clrf + clrf)")
-            body.append(imageData)
-            body.append(clrf)
-        }
+        body.append("--\(boundary + clrf)")
+        body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"profile.jpg\"\(clrf)")
+        body.append("Content-Type: image/jpeg\(clrf + clrf)")
+        body.append(imageData)
+        body.append(clrf)
         
         body.append("--\(boundary)--\(clrf)")
         
