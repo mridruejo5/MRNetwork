@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postImage<JSON:Codable>(url: URL, profileData: JSON, imageData: Data, method: HTTPMethods = .post,
+    static func postMultiPart<JSON:Codable>(url: URL, profileData: JSON, imageData: Data, method: HTTPMethods = .post,
                                    token: String? = nil, authMethod: AuthorizationMethod = .token,
                                         encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
         var request = URLRequest(url: url)
