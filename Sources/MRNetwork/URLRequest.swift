@@ -74,8 +74,8 @@ public extension URLRequest {
     }
     
     static func postMultiPart<JSON:Codable>(url: URL, profileData: JSON, imageData: Data, method: HTTPMethods = .post,
-                                   token: String? = nil, authMethod: AuthorizationMethod = .token,
-                                        encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
+                                            token: String? = nil, authMethod: AuthorizationMethod = .token,
+                                            encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
         var request = URLRequest(url: url)
         if let token {
             request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
@@ -91,8 +91,9 @@ public extension URLRequest {
         body.append("--\(boundary + clrf)")
         body.append("Content-Disposition: form-data; name=\"profileData\"\(profileData)\(clrf)")
         body.append("Content-Type: application/json; charset=utf8\(clrf + clrf)")
-        if let jsonData = try? encoder.encode(profileData) {
-            body.append(jsonData)
+        if let jsonData = try? encoder.encode(profileData),
+           let profileDataString = String(data: jsonData, encoding: .utf8) {
+            body.append(profileDataString)
         }
         body.append(clrf)
         
@@ -100,9 +101,7 @@ public extension URLRequest {
             body.append("--\(boundary + clrf)")
             body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"\(uuid).jpg\"\(clrf)")
             body.append("Content-Type: image/jpeg\(clrf + clrf)")
-            if let image = try? encoder.encode(imageData) {
-                body.append(image)
-            }
+            body.append(imageData)
             body.append(clrf)
         }
         body.append("--\(boundary)--\(clrf)")
