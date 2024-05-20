@@ -110,12 +110,3 @@ public extension URLRequest {
         return request
     }
 }
-
-/*
-var body = Data()
-body.append("--\(boundary)\(clrf)")
-body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\(clrf)")
-body.append("Content-Type: image/jpeg\(clrf)\(clrf)")
-body.append(data)
-body.append("\(clrf)--\(boundary)--\(clrf)")
-*/
