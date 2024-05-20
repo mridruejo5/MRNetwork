@@ -73,9 +73,9 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart<JSON:Codable>(url: URL, profileData: JSON, imageData: Data, method: HTTPMethods = .post,
-                                            token: String? = nil, authMethod: AuthorizationMethod = .token,
-                                            encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
+    static func postMultiPart<JSON: Codable>(url: URL, profileData: JSON, imageData: Data?, method: HTTPMethods = .post,
+                                             token: String? = nil, authMethod: AuthorizationMethod = .token,
+                                             encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
         if let token {
             request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
@@ -88,26 +88,30 @@ public extension URLRequest {
         
         var body = Data()
         
-        body.append("--\(boundary + clrf)")
-        body.append("Content-Disposition: form-data; name=\"\"profileData\"\(clrf)")
-        body.append("Content-Type: application/json\(clrf + clrf)")
-        if let jsonData = try? encoder.encode(profileData),
-           let profileDataString = String(data: jsonData, encoding: .utf8) {
-            body.append(profileDataString)
+        // Add profile data
+        guard let jsonData = try? encoder.encode(profileData), let userDataJSONString = String(data: jsonData, encoding: .utf8) else {
+            throw NetworkError.unknown
         }
+        body.append("--\(boundary + clrf)")
+        body.append("Content-Disposition: form-data; name=\"profileData\"\(clrf)")
+        body.append("Content-Type: application/json\(clrf + clrf)")
+        body.append(userDataJSONString)
         body.append(clrf)
         
-        if let uuid = UUID().uuidString.components(separatedBy: "-").first {
+        // Add image data if available
+        if let imageData = imageData {
             body.append("--\(boundary + clrf)")
-            body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"\(uuid).jpg\"\(clrf)")
+            body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"profile.jpg\"\(clrf)")
             body.append("Content-Type: image/jpeg\(clrf + clrf)")
             body.append(imageData)
             body.append(clrf)
         }
+        
         body.append("--\(boundary)--\(clrf)")
         
         request.httpBody = body
         
         return request
     }
+
 }
