@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart(url: URL, imageData: Data, method: HTTPMethods = .post,
+    static func postMultiPart(url: URL, imageData: Data, key: String, method: HTTPMethods = .post,
                                              token: String? = nil, authMethod: AuthorizationMethod = .token,
                                              encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -88,6 +88,12 @@ public extension URLRequest {
         
         var body = Data()
         
+        // Set boundary before the first field
+        body.append("--\(boundary + clrf)")
+        body.append("Content-Disposition: form-data; name=\"key\"\(clrf)\(clrf)")
+        body.append(key)
+        body.append(clrf)
+        
         // Add image data if available
         body.append("--\(boundary + clrf)")
         body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"profile.jpg\"\(clrf)")
@@ -101,5 +107,4 @@ public extension URLRequest {
         
         return request
     }
-
 }
