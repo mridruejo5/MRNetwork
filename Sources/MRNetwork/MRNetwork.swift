@@ -52,6 +52,23 @@ public final class MRNetwork {
             throw NetworkError.vapor(try JSONDecoder().decode(VaporError.self, from: data).reason, response.statusCode)
         }
     }
+    
+    public func postVMultipart(request:URLRequest, statusOK:Int = 200) async throws {
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            // Handle the server response here
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+                return
+            }
+            // Process the response data
+            if let data = data {
+                let responseString = String(data: data, encoding: .utf8)
+                print("Response: \(responseString ?? "")")
+            }
+        }
+        // Start the URLSession task
+        task.resume()
+    }
 
     public func deleteV(request:URLRequest, statusOK:Int = 200) async throws {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
