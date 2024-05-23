@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart(url: URL, imageData: Data, key: String, method: HTTPMethods = .post,
+    static func postMultiPart(url: URL, name:String, username:String, image: Data, key: String, method: HTTPMethods = .post,
                                              token: String? = nil, authMethod: AuthorizationMethod = .token,
                                              encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -89,19 +89,32 @@ public extension URLRequest {
         var body = Data()
         
         // Set boundary before the first field
-        body.append("--\(boundary + clrf)")
-        body.append("Content-Disposition: form-data; name=\"key\"\(clrf)\(clrf)")
-        body.append(key)
+        body.append("--\(boundary)")
+        body.append(clrf)
+        body.append("Content-Disposition: form-data; name=\"name\"")
+        body.append(clrf + clrf)
+        body.append(name)
+        body.append(clrf)
+        
+        // Set boundary before the second field
+        body.append("--\(boundary)")
+        body.append(clrf)
+        body.append("Content-Disposition: form-data; username=\"username\"")
+        body.append(clrf + clrf)
+        body.append(username)
         body.append(clrf)
         
         // Add image data if available
         body.append("--\(boundary + clrf)")
-        body.append("Content-Disposition: form-data; name=\"imageData\"; filename=\"profile.jpg\"\(clrf)")
-        body.append("Content-Type: image/jpeg\(clrf + clrf)")
-        body.append(imageData)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"")
+        body.append(clrf)
+        body.append("Content-Type: image/jpeg")
+        body.append(clrf + clrf)
+        body.append(image)
         body.append(clrf)
         
-        body.append("--\(boundary)--\(clrf)")
+        body.append("--\(boundary)--")
+        body.append(clrf)
         
         request.httpBody = body
         
