@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart(url: URL, name:String, username:String, image: Data, key: String, method: HTTPMethods = .post,
+    static func postMultiPart(url: URL, name:String, username:String, image: Data, method: HTTPMethods = .post,
                                              token: String? = nil, authMethod: AuthorizationMethod = .token,
                                              encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
