@@ -52,23 +52,46 @@ public final class MRNetwork {
             throw NetworkError.vapor(try JSONDecoder().decode(VaporError.self, from: data).reason, response.statusCode)
         }
     }
-    
-    public func postVMultipart(request:URLRequest, statusOK:Int = 200) async throws {
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            // Handle the server response here
-            if let error = error {
-                print("Error: \(error.localizedDescription)")
-                return
+
+    public func postVMultipart(request: URLRequest, statusOK: Int = 200) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+                // Check if there's an error
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                // Ensure the response is an HTTPURLResponse
+                guard let response = response as? HTTPURLResponse else {
+                    continuation.resume(throwing: NetworkError.noHTTP)
+                    return
+                }
+
+                // Check if the status code is as expected
+                if response.statusCode != statusOK {
+                    if let data = data {
+                        do {
+                            let vaporError = try JSONDecoder().decode(VaporError.self, from: data)
+                            continuation.resume(throwing: NetworkError.vapor(vaporError.reason, response.statusCode))
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    } else {
+                        continuation.resume(throwing: NetworkError.unknown)
+                    }
+                    return
+                }
+
+                // If everything is fine, complete the continuation successfully
+                continuation.resume(returning: ())
             }
-            // Process the response data
-            if let data = data {
-                let responseString = String(data: data, encoding: .utf8)
-                print("Response: \(responseString ?? "")")
-            }
+
+            // Start the URLSession task
+            task.resume()
         }
-        // Start the URLSession task
-        task.resume()
     }
+
 
     public func deleteV(request:URLRequest, statusOK:Int = 200) async throws {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
