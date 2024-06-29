@@ -92,6 +92,19 @@ public final class MRNetwork {
         }
     }
 
+    // Function to upload image using presigned URL
+    public func uploadImageWithPresignedURL(url: URL, imageData: Data, statusOK: Int = 200) async throws {
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethods.put.rawValue
+        request.httpBody = imageData
+        
+        let (data, response) = try await URLSession.shared.dataRequest(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { throw NetworkError.noHTTP }
+        
+        if httpResponse.statusCode != statusOK {
+            throw NetworkError.status(httpResponse.statusCode)
+        }
+    }
 
     public func deleteV(request:URLRequest, statusOK:Int = 200) async throws {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
