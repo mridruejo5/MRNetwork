@@ -73,7 +73,7 @@ public extension URLRequest {
         return request
     }
     
-    static func postMultiPart(url: URL, name: String, username: String, image: Data, method: HTTPMethods = .post,
+    static func postMultiPart(url: URL, name: String? = nil, username: String? = nil, image: Data, method: HTTPMethods = .post,
                               token: String? = nil, authMethod: AuthorizationMethod = .token,
                               encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -88,15 +88,19 @@ public extension URLRequest {
         
         var body = Data()
         
-        // Set boundary before the first field
-        body.append("--\(boundary)\(clrf)")
-        body.append("Content-Disposition: form-data; name=\"name\"\(clrf + clrf)")
-        body.append("\(name)\(clrf)")
+        if let name {
+            // Set boundary before the first field
+            body.append("--\(boundary)\(clrf)")
+            body.append("Content-Disposition: form-data; name=\"name\"\(clrf + clrf)")
+            body.append("\(name)\(clrf)")
+        }
         
-        // Set boundary before the second field
-        body.append("--\(boundary)\(clrf)")
-        body.append("Content-Disposition: form-data; name=\"username\"\(clrf + clrf)")
-        body.append("\(username)\(clrf)")
+        if let username {
+            // Set boundary before the second field
+            body.append("--\(boundary)\(clrf)")
+            body.append("Content-Disposition: form-data; name=\"username\"\(clrf + clrf)")
+            body.append("\(username)\(clrf)")
+        }
         
         // Add image data if available
         body.append("--\(boundary)\(clrf)")
