@@ -39,6 +39,17 @@ public extension URLRequest {
         return request
     }
     
+    static func put(url: URL, data: Data, token: String? = nil, authMethod: AuthorizationMethod = .token) -> URLRequest {
+        var request = URLRequest(url: url)
+        if let token = token {
+            request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
+        }
+        request.httpMethod = HTTPMethods.put.rawValue
+        request.timeoutInterval = 30
+        request.httpBody = data
+        return request
+    }
+    
     static func post<JSON:Codable>(url: URL, data: JSON, method: HTTPMethods = .post,
                                    token: String? = nil, authMethod: AuthorizationMethod = .token,
                                    encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
