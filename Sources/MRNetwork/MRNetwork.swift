@@ -104,6 +104,25 @@ public final class MRNetwork {
             throw NetworkError.status(httpResponse.statusCode)
         }
     }
+    
+    public func deleteImageWithPresignedURL(url: URL) async throws {
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE" // Use the DELETE method for image removal
+
+        // Perform the delete request
+        let (_, response) = try await URLSession.shared.dataRequest(for: request)
+        
+        // Ensure the response is a success
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.noHTTP
+        }
+        
+        // Check for a successful status code
+        if httpResponse.statusCode != 204 {
+            throw NetworkError.status(httpResponse.statusCode)
+        }
+    }
+
 
     public func deleteV(request:URLRequest, statusOK:Int = 200) async throws {
         let (data, response) = try await URLSession.shared.dataRequest(for: request)
