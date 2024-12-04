@@ -26,32 +26,33 @@ struct VaporError: Codable {
 }
 
 public extension URLRequest {
-    static func get(url:URL, token:String? = nil, authMethod:AuthorizationMethod = .token) -> URLRequest {
+    static func get(url: URL, token: String? = nil, authMethod: AuthorizationMethod = .token, language: String = "en") -> URLRequest {
         var request = URLRequest(url: url)
         if let token {
-            request.setValue("\(authMethod.rawValue) \(token)",
-                             forHTTPHeaderField: "Authorization")
+            request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
         }
         request.httpMethod = HTTPMethods.get.rawValue
         request.timeoutInterval = 30
-        request.setValue("application/json",
-                         forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(language, forHTTPHeaderField: "Accept-Language") // Add language header
         return request
     }
+
     
-    static func put(url: URL, data: Data, token: String? = nil, authMethod: AuthorizationMethod = .token) -> URLRequest {
+    static func put(url: URL, data: Data, token: String? = nil, authMethod: AuthorizationMethod = .token, language: String = "en") -> URLRequest {
         var request = URLRequest(url: url)
         if let token = token {
             request.setValue("\(authMethod.rawValue) \(token)", forHTTPHeaderField: "Authorization")
         }
         request.httpMethod = HTTPMethods.put.rawValue
         request.timeoutInterval = 30
+        request.setValue(language, forHTTPHeaderField: "Accept-Language") // Add language header
         request.httpBody = data
         return request
     }
     
     static func post<JSON:Codable>(url: URL, data: JSON, method: HTTPMethods = .post,
-                                   token: String? = nil, authMethod: AuthorizationMethod = .token,
+                                   token: String? = nil, authMethod: AuthorizationMethod = .token, language: String = "en",
                                    encoder: JSONEncoder = JSONEncoder()) -> URLRequest {
         var request = URLRequest(url: url)
         if let token {
@@ -61,6 +62,7 @@ public extension URLRequest {
         request.timeoutInterval = 30
         request.setValue("application/json; charset=utf8", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(language, forHTTPHeaderField: "Accept-Language") // Add language header
         request.httpBody = try? encoder.encode(data)
         return request
     }
@@ -69,7 +71,7 @@ public extension URLRequest {
         url: URL,
         data: JSON? = nil, // Allow optional data, but DELETE usually doesn't contain a body
         token: String? = nil,
-        authMethod: AuthorizationMethod = .token,
+        authMethod: AuthorizationMethod = .token, language: String = "en",
         encoder: JSONEncoder = JSONEncoder()
     ) throws -> URLRequest {
         var request = URLRequest(url: url)
@@ -80,12 +82,13 @@ public extension URLRequest {
         request.timeoutInterval = 30
         request.setValue("application/json; charset=utf8", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(language, forHTTPHeaderField: "Accept-Language") // Add language header
         // For DELETE requests, omit setting the httpBody as it's usually empty
         return request
     }
     
     static func postMultiPart(url: URL, name: String? = nil, username: String? = nil, image: Data, method: HTTPMethods = .post,
-                              token: String? = nil, authMethod: AuthorizationMethod = .token,
+                              token: String? = nil, authMethod: AuthorizationMethod = .token, language: String = "en",
                               encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
         var request = URLRequest(url: url)
         if let token {
@@ -93,6 +96,7 @@ public extension URLRequest {
         }
         request.httpMethod = method.rawValue
         request.timeoutInterval = 30
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
         let boundary = UUID().uuidString
         let clrf = "\r\n"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
